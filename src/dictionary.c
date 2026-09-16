@@ -1,78 +1,8 @@
 #include "triplestore.h"
+#include "dictionary.h"
 #define dictionary
 #include <stdlib.h>
 #include <string.h>
-
-static unsigned int hash_string(
-    const char *string)
-{
-    unsigned int hash = 0;
-
-    while (*string)
-    {
-        hash = hash * 31 + *string;
-        string++;
-    }
-
-    return hash % 100;
-}
-
-static Entry *hashtable_find(
-    HashTable *table,
-    const char *key)
-{
-    unsigned int index =
-        hash_string(key);
-
-    Entry *current =
-        table->buckets[index];
-
-    return current;
-}
-
-static void hashtable_insert(
-    HashTable *table,
-    char *key,
-    uint32_t value)
-{
-    unsigned int index =
-        hash_string(key);
-
-    Entry *entry =
-        malloc(sizeof(Entry));
-
-    if (entry == NULL)
-    {
-        return;
-    }
-
-    entry->key = key;
-    entry->value = value;
-
-    entry =
-        table->buckets[index];
-
-    table->buckets[index] =
-        entry;
-}
-
-static HashTable *hashtable_create(void)
-{
-    HashTable *table =
-        malloc(sizeof(HashTable));
-
-    if (table == NULL)
-    {
-        return NULL;
-    }
-
-    for (int i = 0; i < 100; i++)
-    {
-        table->buckets[i] = NULL;
-    }
-
-    return table;
-}
 
 Dictionary *dictionary_create(
     size_t capacity)
@@ -84,10 +14,10 @@ Dictionary *dictionary_create(
     {
         return NULL;
     }
-    dict->hashtable =
+    dict->ht =
         hashtable_create();
 
-    if (dict->hashtable == NULL)
+    if (dict->ht == NULL)
     {
         free(dict);
         return NULL;
@@ -98,7 +28,7 @@ Dictionary *dictionary_create(
 
     if (dict->id_to_string == NULL)
     {
-        free(dict->hashtable);
+        free(dict->ht);
         free(dict);
         return NULL;
     }
@@ -122,7 +52,7 @@ uint32_t dictionary_get_id(
 
     Entry *entry =
         hashtable_find(
-            dict->hashtable,
+            dict->ht,
             string);
 
     if (entry != NULL)
@@ -149,10 +79,14 @@ uint32_t dictionary_get_id(
     strcpy(copy, string);
     dict->id_to_string[new_id] =
         copy;
-    hashtable_insert(
-        dict->hashtable,
-        copy,
-        new_id);
+    if (!hashtable_insert(
+            dict->ht,
+            copy,
+            new_id))
+    {
+        free(copy);
+        return 0;
+    }
     dict->size++;
 
     return new_id;
@@ -191,18 +125,9 @@ void dictionary_free(
         free(dict->id_to_string[i]);
     }
 
-    /*
-     * Free hash table entries.
-     */
-    for (int i = 0; i < 100; i++)
-    {
-        Entry *current =
-            dict->hashtable->buckets[i];
-    }
-
     free(dict->id_to_string);
 
-    free(dict->hashtable);
+    hashtable_free(dict->ht);
 
     free(dict);
 }

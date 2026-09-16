@@ -1,4 +1,5 @@
 #include "./include/triplestore.h"
+#include "./include/dictionary.h"
 #include <stdio.h>
 
 
