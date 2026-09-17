@@ -2,9 +2,25 @@
 
 #include <stdio.h>
 
+#include "fetcher.h"
+
 int main(void)
 {
+    int n;
+    TripleChars *t = fetch_TripleChars("full.ttl", &n);
+    if (!t)
+    { 
+        printf("data didnt load"); 
+        return 0;
+    }
     Triplestore *ts = create();
+
+    for (int i = 0; i < n; i++)
+        
+        insert(ts,  t[i].s, t[i].p, t[i].o);
+
+  
+    
 
     if (ts == NULL)
     {
@@ -12,25 +28,7 @@ int main(void)
         return 1;
     }
 
-    insert(ts, "alice", "knows", "bob");
-    insert(ts, "bob", "knows", "carol");
-    insert(ts, "alice", "likes", "music");
-    insert(ts, "alice", "knows", "bosssb");
-    insert(ts, "bob", "kndows", "carcol");
-    insert(ts, "alwice", "likdes", "mudsic");
-    insert(ts, "alice", "knodws", "bodb");
-    insert(ts, "bodb", "kndows", "cadrol");
-    insert(ts, "aldsdice", "liskes", "musddic");
-    insert(ts, "alisce", "knowews", "boddb");
-    insert(ts, "bosb", "kdnows", "carodl");
-    insert(ts, "alisce", "likdes", "music");
-    insert(ts, "alicse", "kncows", "bob");
-    insert(ts, "bobsdf", "knowcs", "carol");
-    insert(ts, "alice", "likcces", "music");
-    insert(ts, "alice", "knocws", "bob");
-    insert(ts, "bob", "knowsc", "carol");
-    insert(ts, "alisdfce", "likces", "musicc");
-
+    
     printf("Number of triples: %d\n", count(ts));
 
     for (size_t i = 0; i < ts->size; i++)
@@ -49,6 +47,7 @@ int main(void)
     }
 
     triplestore_free(ts);
+    fetch_free(t, n);
 
     return 0;
 }

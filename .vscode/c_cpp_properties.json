@@ -4,6 +4,7 @@
             "name": "Win32",
             "includePath": [
                 "${workspaceFolder}/include",
+                "C:/msys64/ucrt64/include/raptor2",
                 "${workspaceFolder}/**"
             ],
             "defines": [
