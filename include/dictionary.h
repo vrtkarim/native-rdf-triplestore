@@ -1,5 +1,11 @@
-#define dictionary
+#ifndef DICTIONARY_H
+#define DICTIONARY_H
+
+#include <stddef.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include "hashtable.h"
+
 typedef struct
 {
     HashTable *ht;
@@ -22,3 +28,6 @@ const char *dictionary_get_string(
 
 void dictionary_free(
     Dictionary *dict);
+bool dictionary_grow(Dictionary* dict); 
+
+#endif

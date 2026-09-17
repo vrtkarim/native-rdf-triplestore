@@ -1,85 +1,54 @@
 #include "./include/triplestore.h"
-#include "./include/dictionary.h"
+
 #include <stdio.h>
-
-
 
 int main(void)
 {
-    Dictionary *dict =
-        dictionary_create(10);
+    Triplestore *ts = create();
 
+    if (ts == NULL)
+    {
+        printf("Could not create triplestore.\n");
+        return 1;
+    }
 
-    uint32_t alice =
-        dictionary_get_id(
-            dict,
-            "alice"
-        );
+    insert(ts, "alice", "knows", "bob");
+    insert(ts, "bob", "knows", "carol");
+    insert(ts, "alice", "likes", "music");
+    insert(ts, "alice", "knows", "bosssb");
+    insert(ts, "bob", "kndows", "carcol");
+    insert(ts, "alwice", "likdes", "mudsic");
+    insert(ts, "alice", "knodws", "bodb");
+    insert(ts, "bodb", "kndows", "cadrol");
+    insert(ts, "aldsdice", "liskes", "musddic");
+    insert(ts, "alisce", "knowews", "boddb");
+    insert(ts, "bosb", "kdnows", "carodl");
+    insert(ts, "alisce", "likdes", "music");
+    insert(ts, "alicse", "kncows", "bob");
+    insert(ts, "bobsdf", "knowcs", "carol");
+    insert(ts, "alice", "likcces", "music");
+    insert(ts, "alice", "knocws", "bob");
+    insert(ts, "bob", "knowsc", "carol");
+    insert(ts, "alisdfce", "likces", "musicc");
 
-    uint32_t knows =
-        dictionary_get_id(
-            dict,
-            "knows"
-        );
+    printf("Number of triples: %d\n", count(ts));
 
-    uint32_t bob =
-        dictionary_get_id(
-            dict,
-            "bob"
-        );
+    for (size_t i = 0; i < ts->size; i++)
+    {
+        Triple triple = ts->triples[i];
 
+        printf(
+            "(%u, %u, %u) = (%s, %s, %s)\n",
+            triple.subject,
+            triple.predicate,
+            triple.object,
+            dictionary_get_string(ts->dictionary, triple.subject),
+            dictionary_get_string(ts->dictionary, triple.predicate),
+            dictionary_get_string(ts->dictionary, triple.object));
+        printf("dictioanary capacity, size are: %u, %u ",ts->dictionary->capacity, ts->dictionary->size);
+    }
 
-    printf("alice ID = %u\n", alice);
-    printf("knows ID = %u\n", knows);
-    printf("bob ID = %u\n", bob);
-
-
-    printf(
-        "ID 1 = %s\n",
-        dictionary_get_string(dict, 1)
-    );
-
-    printf(
-        "ID 2 = %s\n",
-        dictionary_get_string(dict, 2)
-    );
-
-    printf(
-        "ID 3 = %s\n",
-        dictionary_get_string(dict, 3)
-    );
-
-
-    /*
-     * Ask for alice again.
-     *
-     * It should return 1,
-     * NOT create a new ID.
-     */
-    uint32_t alice_again =
-        dictionary_get_id(
-            dict,
-            "alice"
-        );
-
-    printf(
-        "alice again = %u\n",
-        alice_again
-    );
-
-
-    printf(
-        "size = %zu\n",
-        dict->size
-    );
-
-    printf(
-        "capacity = %zu\n",
-        dict->capacity
-    );
-
-
-    dictionary_free(dict);
+    triplestore_free(ts);
 
     return 0;
 }

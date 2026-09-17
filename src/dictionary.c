@@ -1,9 +1,8 @@
-#include "triplestore.h"
 #include "dictionary.h"
-#define dictionary
 #include <stdlib.h>
 #include <string.h>
-
+#include <stdbool.h>
+#include <stdio.h>
 Dictionary *dictionary_create(
     size_t capacity)
 {
@@ -24,7 +23,7 @@ Dictionary *dictionary_create(
     }
     dict->id_to_string =
         malloc(
-            capacity * sizeof(char *));
+            (capacity + 1) * sizeof(char *));
 
     if (dict->id_to_string == NULL)
     {
@@ -33,7 +32,7 @@ Dictionary *dictionary_create(
         return NULL;
     }
 
-    for (size_t i = 0; i < capacity; i++)
+    for (size_t i = 0; i <= capacity; i++)
     {
         dict->id_to_string[i] = NULL;
     }
@@ -62,12 +61,18 @@ uint32_t dictionary_get_id(
 
     if (dict->size >= dict->capacity)
     {
-        return 0;
+        if (dictionary_grow(dict) == false)
+        {
+            return 0;
+        }
     }
 
     uint32_t new_id =
         dict->size + 1;
 
+    if(string ==NULL){
+        return 0;
+    }
     char *copy =
         malloc(strlen(string) + 1);
 
@@ -77,8 +82,6 @@ uint32_t dictionary_get_id(
     }
 
     strcpy(copy, string);
-    dict->id_to_string[new_id] =
-        copy;
     if (!hashtable_insert(
             dict->ht,
             copy,
@@ -87,6 +90,7 @@ uint32_t dictionary_get_id(
         free(copy);
         return 0;
     }
+    dict->id_to_string[new_id] = copy;
     dict->size++;
 
     return new_id;
@@ -96,17 +100,29 @@ const char *dictionary_get_string(
     Dictionary *dict,
     uint32_t id)
 {
-    if (id == 0)
-    {
-        return NULL;
-    }
-
-    if (id > dict->size)
+    if (dict == NULL || id == 0 || id > dict->size)
     {
         return NULL;
     }
 
     return dict->id_to_string[id];
+}
+bool dictionary_grow(Dictionary *dict)
+{
+    size_t newcapacity = dict->capacity * 2;
+    char **new = realloc(dict->id_to_string,( newcapacity+1)*sizeof(char *));
+    if (new == NULL)
+    {
+        printf("realloc failed...");
+        return false;
+    }
+    for (size_t i = dict->capacity + 1; i <= newcapacity; i++)
+    {
+        new[i] = NULL;
+    }
+    dict->id_to_string = new;
+    dict->capacity = newcapacity;
+    return true;
 }
 
 void dictionary_free(

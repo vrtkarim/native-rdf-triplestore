@@ -7,9 +7,14 @@
             "args": [
                 "-fdiagnostics-color=always",
                 "-g",
-                "${file}",
+                "-I",
+                "${workspaceFolder}/include",
+                "${workspaceFolder}/main.c",
+                "${workspaceFolder}/src/dictionary.c",
+                "${workspaceFolder}/src/hashtable.c",
+                "${workspaceFolder}/src/triplestore.c",
                 "-o",
-                "${fileDirname}\\${fileBasenameNoExtension}.exe"
+                "${workspaceFolder}\\triplestore.exe"
             ],
             "options": {
                 "cwd": "${fileDirname}"
