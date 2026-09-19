@@ -1,4 +1,5 @@
 #include "./include/triplestore.h"
+#include "./include/engine.h"
 
 #include <stdio.h>
 
@@ -9,18 +10,15 @@ int main(void)
     int n;
     TripleChars *t = fetch_TripleChars("full.ttl", &n);
     if (!t)
-    { 
-        printf("data didnt load"); 
+    {
+        printf("data didnt load");
         return 0;
     }
     Triplestore *ts = create();
 
     for (int i = 0; i < n; i++)
-        
-        insert(ts,  t[i].s, t[i].p, t[i].o);
 
-  
-    
+        insert(ts, t[i].s, t[i].p, t[i].o);
 
     if (ts == NULL)
     {
@@ -28,10 +26,38 @@ int main(void)
         return 1;
     }
 
-    
     printf("Number of triples: %d\n", count(ts));
 
-    for (size_t i = 0; i < ts->size; i++)
+    char predicate[] = "http://xmlns.com/foaf/0.1/knows";
+    Results *results = getTriples(
+        ts,
+        NULL,
+        predicate,
+        NULL,
+        true,
+        false,
+        true);
+
+    if (results != NULL)
+    {
+        printf("Triples with predicate %s:\n", predicate);
+
+        for (size_t i = 0; i < results->size; i++)
+        {
+            Triple triple = results->triples[i];
+
+            printf(
+                "(%s, %s, %s)\n",
+                dictionary_get_string(ts->dictionary, triple.subject),
+                dictionary_get_string(ts->dictionary, triple.predicate),
+                dictionary_get_string(ts->dictionary, triple.object));
+        }
+
+        //free(results->triples);
+        //free(results);
+    }
+
+    /*for (size_t i = 0; i < ts->size; i++)
     {
         Triple triple = ts->triples[i];
 
@@ -44,7 +70,7 @@ int main(void)
             dictionary_get_string(ts->dictionary, triple.predicate),
             dictionary_get_string(ts->dictionary, triple.object));
         printf("dictioanary capacity, size are: %u, %u ",ts->dictionary->capacity, ts->dictionary->size);
-    }
+    }*/
 
     triplestore_free(ts);
     fetch_free(t, n);

@@ -18,6 +18,7 @@
                 "${workspaceFolder}/src/hashtable.c",
                 "${workspaceFolder}/src/fetcher.c",
                 "${workspaceFolder}/src/triplestore.c",
+                "${workspaceFolder}/src/engine.c",
                 "-L",
                 "C:/msys64/ucrt64/lib",
                 "-lraptor2",
