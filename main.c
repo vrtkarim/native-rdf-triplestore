@@ -53,8 +53,7 @@ int main(void)
                 dictionary_get_string(ts->dictionary, triple.object));
         }
 
-        //free(results->triples);
-        //free(results);
+        free_results(results);
     }
 
     /*for (size_t i = 0; i < ts->size; i++)

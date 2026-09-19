@@ -145,3 +145,14 @@ void addToTriples(Results *results, Triple triple)
         }
     }
 }
+void free_results(Results *results)
+{
+    if (results == NULL)
+    {
+        return;
+    }
+
+    free(results->triples);
+    
+    free(results);
+}

@@ -9,9 +9,7 @@
 typedef struct
 {
     HashTable *ht;
-
     char **id_to_string;
-
     size_t size;
     size_t capacity;
 } Dictionary;
