@@ -21,7 +21,7 @@ main.c
 The `storage` module owns the RDF data model and its in-memory structures:
 
 - `triplestore.c`: creates the triplestore, inserts triples, counts triples,
-	and releases triplestore memory.
+  and releases triplestore memory.
 - `dictionary.c`: maps RDF strings to numeric IDs and maps IDs back to strings.
 - `hashtable.c`: stores and finds dictionary entries.
 - `fetcher.c`: loads triples from Turtle files using Raptor2.
@@ -46,7 +46,7 @@ Planned stages:
 1. Build a lexer that converts SPARQL text into tokens.
 2. Build a parser that converts tokens into a query structure.
 3. Support a small initial grammar with `SELECT`, `WHERE`, variables, IRIs,
-	 braces, and triple-pattern dots.
+   braces, and triple-pattern dots.
 4. Convert parsed triple patterns into calls to the engine.
 5. Print results for the variables selected by the query.
 
