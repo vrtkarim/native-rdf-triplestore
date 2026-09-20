@@ -1,5 +1,5 @@
-#include "./include/triplestore.h"
-#include "./include/engine.h"
+#include "triplestore.h"
+#include "engine.h"
 
 #include <stdio.h>
 
