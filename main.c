@@ -2,6 +2,7 @@
 #include "engine.h"
 #include "fetcher.h"
 #include "token.h"
+#include <stdio.h>
 
 int main(void)
 {
@@ -72,7 +73,22 @@ int main(void)
     /* triplestore_free(ts);
     fetch_free(t, n); */
 
-    char *query = "SELECT ?person ?friend WHERE { ?person < http: // xmlns.com/foaf/0.1/knows> ?friend .}";
-    parseQuery(query);
+    char *query = "SELECT ?person ?friend WHERE { ?person <http://xmlns.com/foaf/0.1/knows> ?friend .}";
+    Tokens *tokens = parseQuery(query);
+
+    if (tokens != NULL)
+    {
+        printf("number of tokens is %zu\n", tokens->size);
+
+        for (size_t i = 0; i < tokens->size; i++)
+        {
+            printf(
+                "token %zu: type=%d, text=%s\n",
+                i,
+                tokens->arrOfTokens[i].type,
+                tokens->arrOfTokens[i].text);
+        }
+    }
+
     return 0;
 }

@@ -3,60 +3,82 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stdio.h>
+#define TOKENS_CAPACITY 10
 
-void parseQuery(char *query)
+Tokens *parseQuery(char *query)
 {
+    Tokens *tokens = createTokens(TOKENS_CAPACITY);
     unsigned int current = 0;
     for (size_t index = 0; index < strlen(query) + 1; index++)
     {
         if (query[index] == ' ' || query[index] == '\0')
         {
-            getToken(current, index, query);
+            getToken(current, index, query, tokens);
             current = index + 1;
         }
     }
+
+    return tokens;
 }
-void getToken(unsigned int current, unsigned int index, char *query)
+void getToken(unsigned int current, unsigned int index, char *query, Tokens *tokens)
 {
     size_t length = index - current;
     char *token = malloc((length + 1) * sizeof(*token));
-
     if (token == NULL)
     {
         return;
     }
-
     memcpy(token, query + current, length);
     token[length] = '\0';
-
-    if (strcmp("SELECT", token) == 0)
+    Token tokenToAdd = {
+        .type = TOKEN_ERROR,
+        .text = token};
+    if (strcasecmp("SELECT", token) == 0)
     {
-        /*  printf(" select from index %u, to index %u.", current, index); */
+        tokenToAdd = (Token){
+            .type = TOKEN_SELECT,
+            .text = token};
+    }
+    if (strcasecmp("WHERE", token) == 0)
+    {
+        tokenToAdd = (Token){
+            .type = TOKEN_WHERE,
+            .text = token};
     }
     if (startsWith(token, '?'))
-
     {
-        printf("token %s is a variable.\n", token);
+        tokenToAdd = (Token){
+            .type = TOKEN_VARIABLE,
+            .text = token};
     }
     if (startsWith(token, '<'))
     {
-        printf("token %s is a IRI.\n", token);
+        remove_angle_brackets(token);
+
+        tokenToAdd = (Token){
+            .type = TOKEN_IRI,
+            .text = token};
     }
     if (startsWith(token, '.'))
     {
-        printf("token %s is a dot.\n", token);
+        tokenToAdd = (Token){
+            .type = TOKEN_DOT,
+            .text = token};
     }
     if (startsWith(token, '{'))
     {
-        printf("left brace\n");
+        tokenToAdd = (Token){
+            .type = TOKEN_LBRACE,
+            .text = token};
     }
 
     if (endsWith(token, '}'))
     {
-        printf("right brace\n");
+        tokenToAdd = (Token){
+            .type = TOKEN_RBRACE,
+            .text = token};
     }
-
-    free(token);
+    addToTokens(tokenToAdd, tokens);
 }
 bool startsWith(char *token, char start)
 {
@@ -82,4 +104,62 @@ bool endsWith(char *token, char end)
         return true;
     }
     return false;
+}
+Tokens *createTokens(size_t capacity)
+{
+    Tokens *tokens = malloc(sizeof(Tokens *));
+    tokens->capacity = capacity;
+    tokens->size = 0;
+    tokens->arrOfTokens = malloc(capacity * sizeof(Token *));
+    return tokens;
+}
+void addToTokens(Token token, Tokens *tokens)
+{
+    (tokens->arrOfTokens)[tokens->size] = token;
+    tokens->size += 1;
+    if (tokens->size >= tokens->capacity)
+    {
+        if (tokensArrayGrow(tokens))
+        {
+            /* code */
+        }
+        else
+        {
+            return;
+        }
+    }
+}
+bool tokensArrayGrow(Tokens *tokens)
+{
+    size_t newcapacity = 2 * (tokens->capacity);
+    Token *new = realloc(tokens->arrOfTokens, newcapacity * sizeof(Token *));
+    if (new == NULL)
+    {
+        return false;
+    }
+    else
+    {
+        tokens->arrOfTokens = new;
+        tokens->capacity = newcapacity;
+        return true;
+    }
+}
+void remove_angle_brackets(char *text)
+{
+    size_t length;
+
+    if (text == NULL)
+    {
+        return;
+    }
+
+    length = strlen(text);
+
+    if (length >= 2 &&
+        text[0] == '<' &&
+        text[length - 1] == '>')
+    {
+        memmove(text, text + 1, length - 2);
+        text[length - 2] = '\0';
+    }
 }

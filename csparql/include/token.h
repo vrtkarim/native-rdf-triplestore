@@ -1,5 +1,7 @@
 #ifndef TOKEN_H
+#define TOKEN_H
 #include <stdbool.h>
+#include <stddef.h>
 typedef enum
 {
     TOKEN_SELECT,
@@ -17,8 +19,20 @@ typedef struct
     TokenType type;
     char *text;
 } Token;
-void parseQuery(char* query); 
-void getToken(unsigned int current, unsigned int index, char *query);
+
+typedef struct Tokens
+{
+    Token *arrOfTokens;
+    size_t size;
+    size_t capacity;
+} Tokens;
+
+Tokens *parseQuery(char *query);
+void getToken(unsigned int current, unsigned int index, char *query, Tokens *tokens);
 bool startsWith(char *token, char start);
 bool endsWith(char *token, char end);
+Tokens *createTokens(size_t capacity);
+void addToTokens(Token token, Tokens *tokens);
+bool tokensArrayGrow(Tokens *tokens);
+void remove_angle_brackets(char *text);
 #endif
