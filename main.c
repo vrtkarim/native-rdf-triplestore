@@ -1,13 +1,11 @@
 #include "triplestore.h"
 #include "engine.h"
-
-#include <stdio.h>
-
 #include "fetcher.h"
+#include "token.h"
 
 int main(void)
 {
-    int n;
+    /* int n;
     TripleChars *t = fetch_TripleChars("full.ttl", &n);
     if (!t)
     {
@@ -54,7 +52,7 @@ int main(void)
         }
 
         free_results(results);
-    }
+    } */
 
     /*for (size_t i = 0; i < ts->size; i++)
     {
@@ -71,8 +69,10 @@ int main(void)
         printf("dictioanary capacity, size are: %u, %u ",ts->dictionary->capacity, ts->dictionary->size);
     }*/
 
-    triplestore_free(ts);
-    fetch_free(t, n);
+    /* triplestore_free(ts);
+    fetch_free(t, n); */
 
+    char *query = "SELECT ?person ?friend WHERE { ?person < http: // xmlns.com/foaf/0.1/knows> ?friend .}";
+    parseQuery(query);
     return 0;
 }
