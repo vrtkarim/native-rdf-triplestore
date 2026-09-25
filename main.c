@@ -36,27 +36,10 @@ int main(void)
         "?person <http://xmlns.com/foaf/0.1/knows> ?friend . }";
     Results *results = execute(ts, query);
 
-    if (results != NULL)
-    {
-        printf("Query results:\n");
-
-        for (size_t i = 0; i < results->size; i++)
-        {
-            Triple triple = results->triples[i];
-
-            printf(
-                "(%s, %s, %s)\n",
-                dictionary_get_string(ts->dictionary, triple.subject),
-                dictionary_get_string(ts->dictionary, triple.predicate),
-                dictionary_get_string(ts->dictionary, triple.object));
-        }
-
-        free_results(results);
-    }
+    free_results(results);
 
     triplestore_free(ts);
     fetch_free(t, n);
-   
 
-        return 0;
+    return 0;
 }
