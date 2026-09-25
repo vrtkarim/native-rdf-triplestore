@@ -2,6 +2,7 @@
 #include "engine.h"
 #include "fetcher.h"
 #include "token.h"
+#include "parse.h"
 #include <stdio.h>
 
 int main(void)
@@ -73,7 +74,7 @@ int main(void)
     /* triplestore_free(ts);
     fetch_free(t, n); */
 
-    char *query = "SELECT ?person ?friend WHERE { ?person <http://xmlns.com/foaf/0.1/knows> ?friend .}";
+    char *query = "SELECT ?person ?friend WHERE { ?person <http://xmlns.com/foaf/0.1/knows> ?friend . }";
     Tokens *tokens = parseQuery(query);
 
     if (tokens != NULL)
@@ -87,6 +88,32 @@ int main(void)
                 i,
                 tokens->arrOfTokens[i].type,
                 tokens->arrOfTokens[i].text);
+
+        ParsedQuery *parsed_query = parseQuery(tokens);
+
+        if (parsed_query != NULL)
+        {
+            printf(
+                "parsed query type: %d\n"
+                "subject: %s (variable=%s)\n"
+                "predicate: %s (variable=%s)\n"
+                "object: %s (variable=%s)\n",
+                parsed_query->type,
+                parsed_query->triplePattern.subject,
+                parsed_query->triplePattern.sv ? "true" : "false",
+                parsed_query->triplePattern.predicate,
+                parsed_query->triplePattern.pv ? "true" : "false",
+                parsed_query->triplePattern.object,
+                parsed_query->triplePattern.ov ? "true" : "false");
+
+            for (size_t i = 0; i < parsed_query->variables.count; i++)
+            {
+                printf(
+                    "variable: %s, position: %d\n",
+                    parsed_query->variables.vs[i].value,
+                    parsed_query->variables.vs[i].position);
+            }
+        }
         }
     }
 
