@@ -27,7 +27,7 @@ typedef struct Tokens
     size_t capacity;
 } Tokens;
 
-Tokens *parseQuery(char *query);
+Tokens *getTokens(char *query);
 void getToken(unsigned int current, unsigned int index, char *query, Tokens *tokens);
 bool startsWith(char *token, char start);
 bool endsWith(char *token, char end);

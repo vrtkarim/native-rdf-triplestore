@@ -24,6 +24,8 @@
                 "${workspaceFolder}/storage/src/triplestore.c",
                 "${workspaceFolder}/engine/src/engine.c",
                 "${workspaceFolder}/csparql/src/token.c",
+                "${workspaceFolder}/csparql/src/parse.c",
+                "${workspaceFolder}/csparql/src/executor.c",
                 "-L",
                 "C:/msys64/ucrt64/lib",
                 "-lraptor2",

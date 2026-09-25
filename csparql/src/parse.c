@@ -2,7 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-ParsedQuery *parseQuery(Tokens *tokens){
+ParsedQuery *parseQuery(Tokens *tokens)
+{
     ParsedQuery *parsedquery = malloc(sizeof(*parsedquery));
 
     if (parsedquery == NULL)
@@ -24,21 +25,11 @@ ParsedQuery *parseQuery(Tokens *tokens){
     QueryType type = getType(tokens);
     parsedquery->triplePattern = *tp;
     parsedquery->variables = *vs;
-    parsedquery->type = type; 
+    parsedquery->type = type;
     free(tp);
     free(vs);
     return parsedquery;
 }
-
-
-
-
-
-
-
-
-
-
 
 Variables *getVariablesAndPositions(Tokens *tokens, TriplePattern *triple)
 {

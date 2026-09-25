@@ -1,4 +1,5 @@
 #ifndef ENGINE_H
+#define ENGINE_H
 #include <stdint.h>
 #include <stddef.h>
 #include "triplestore.h"
@@ -7,7 +8,7 @@ typedef struct Results
 {
     size_t size;
     size_t capacity;
-    Triple* triples;
+    Triple *triples;
 } Results;
 
 Results *getTriples(Triplestore *ts, char *subject, char *predicate, char *object, bool sv, bool pv, bool ov);

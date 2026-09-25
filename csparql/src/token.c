@@ -5,7 +5,7 @@
 #include <stdio.h>
 #define TOKENS_CAPACITY 10
 
-Tokens *parseQuery(char *query)
+Tokens *getTokens(char *query)
 {
     Tokens *tokens = createTokens(TOKENS_CAPACITY);
     unsigned int current = 0;
@@ -107,10 +107,23 @@ bool endsWith(char *token, char end)
 }
 Tokens *createTokens(size_t capacity)
 {
-    Tokens *tokens = malloc(sizeof(Tokens *));
+    Tokens *tokens = malloc(sizeof(*tokens));
+
+    if (tokens == NULL)
+    {
+        return NULL;
+    }
+
     tokens->capacity = capacity;
     tokens->size = 0;
-    tokens->arrOfTokens = malloc(capacity * sizeof(Token *));
+    tokens->arrOfTokens = malloc(capacity * sizeof(*tokens->arrOfTokens));
+
+    if (tokens->arrOfTokens == NULL)
+    {
+        free(tokens);
+        return NULL;
+    }
+
     return tokens;
 }
 void addToTokens(Token token, Tokens *tokens)
@@ -132,7 +145,9 @@ void addToTokens(Token token, Tokens *tokens)
 bool tokensArrayGrow(Tokens *tokens)
 {
     size_t newcapacity = 2 * (tokens->capacity);
-    Token *new = realloc(tokens->arrOfTokens, newcapacity * sizeof(Token *));
+    Token *new = realloc(
+        tokens->arrOfTokens,
+        newcapacity * sizeof(*tokens->arrOfTokens));
     if (new == NULL)
     {
         return false;
