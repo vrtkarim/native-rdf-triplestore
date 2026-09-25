@@ -36,19 +36,24 @@ returns matching triples in a dynamically allocated `Results` structure.
 
 Headers are in `engine/include` and the implementation is in `engine/src`.
 
-### CSparql: next implementation
+### CSparql
 
-The `csparql` module is reserved for the query language layer. It will be
-implemented after the storage and engine layers are stable.
+The `csparql` module provides the query language layer. It currently includes
+tokenization, parsing, and execution for a basic `SELECT` query.
 
-Planned stages:
+Current stages:
 
-1. Build a lexer that converts SPARQL text into tokens.
-2. Build a parser that converts tokens into a query structure.
-3. Support a small initial grammar with `SELECT`, `WHERE`, variables, IRIs,
+1. The lexer converts SPARQL text into tokens.
+2. The parser converts tokens into a parsed query structure.
+3. The executor converts the parsed triple pattern into an engine call.
+4. The executor prints values for the selected variables.
+
+Next planned stages:
+
+1. Expand the grammar beyond `SELECT`, `WHERE`, variables, IRIs,
    braces, and triple-pattern dots.
-4. Convert parsed triple patterns into calls to the engine.
-5. Print results for the variables selected by the query.
+2. Add prefix declarations.
+3. Add `ASK`, `INSERT DATA`, and `DELETE DATA` operations.
 
 Example target query:
 
@@ -73,3 +78,77 @@ gcc -g -I engine/include -I storage/include \
 ```
 
 The same source files and include paths are configured in `.vscode/tasks.json`.
+
+## SELECT Processing Flow
+
+The current SELECT path creates these main instances:
+
+- `TripleChars *t`: triples loaded from `full.ttl` as strings.
+- `Triplestore *ts`: in-memory storage of numeric RDF IDs.
+- `Tokens *tokens`: tokenized query text.
+- `ParsedQuery *parsedQuery`: parsed query type, variables, and triple pattern.
+- `Results *results`: triples matching the parsed pattern.
+
+```mermaid
+flowchart TD
+	A[main] --> B[fetch_TripleChars full.ttl]
+	B --> C[TripleChars *t]
+	C --> D[create]
+	D --> E[Triplestore *ts]
+	C --> F[insert ts, t[i].s, t[i].p, t[i].o]
+	F --> G[Dictionary and HashTable assign numeric IDs]
+	G --> E
+	E --> H[execute ts, query]
+	H --> I[getTokens query]
+	I --> J[Tokens *tokens]
+	J --> K[parseQuery tokens]
+	K --> L[ParsedQuery *parsedQuery]
+	L --> M[getTriplePattern tokens]
+	L --> N[getVariablesAndPositions tokens, triple]
+	N --> O[Variables variables]
+	L --> P[getType tokens]
+	L --> Q[getTriples ts, triple pattern, variable flags]
+	Q --> R[Results *results]
+	R --> S[addToTriples for each matching Triple]
+	S --> T[main prints dictionary_get_string values]
+	T --> U[free_results results]
+	U --> V[triplestore_free ts]
+	V --> W[fetch_free t, n]
+```
+
+## Methods Used
+
+### Loading and storage
+
+| Method              | Purpose                                                                       |
+| ------------------- | ----------------------------------------------------------------------------- |
+| `fetch_TripleChars` | Loads Turtle data into string triples.                                        |
+| `create`            | Allocates the triplestore, dictionary, hash table, and triple array.          |
+| `insert`            | Converts subject, predicate, and object strings to IDs and stores a `Triple`. |
+| `dictionary_get_id` | Finds or creates an ID for an RDF string.                                     |
+| `hashtable_find`    | Finds an existing string-to-ID entry.                                         |
+| `count`             | Returns the number of stored triples.                                         |
+
+### Tokenizing and parsing
+
+| Method                     | Purpose                                             |
+| -------------------------- | --------------------------------------------------- |
+| `getTokens`                | Converts the query string into a `Tokens` array.    |
+| `parseQuery`               | Builds a `ParsedQuery` from the tokens.             |
+| `getType`                  | Identifies the query operation, currently `SELECT`. |
+| `getTriplePattern`         | Extracts subject, predicate, and object terms.      |
+| `getVariablesAndPositions` | Records selected variables and their positions.     |
+| `addVariable`              | Adds a variable to the dynamic `Variables` array.   |
+| `variablesArrayGrow`       | Doubles the variable array capacity when needed.    |
+
+### Execution and cleanup
+
+| Method                  | Purpose                                                |
+| ----------------------- | ------------------------------------------------------ |
+| `execute`               | Connects tokenization, parsing, and engine execution.  |
+| `getTriples`            | Finds triples matching the parsed pattern.             |
+| `addToTriples`          | Adds a matching triple to `Results`.                   |
+| `dictionary_get_string` | Converts a numeric ID back to an RDF string.           |
+| `free_results`          | Releases the result array and result structure.        |
+| `triplestore_free`      | Releases storage, dictionary, hash table, and triples. |
+| `fetch_free`            | Releases the loaded `TripleChars` array and strings.   |
