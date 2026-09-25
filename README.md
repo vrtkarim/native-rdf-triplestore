@@ -79,42 +79,6 @@ gcc -g -I engine/include -I storage/include \
 
 The same source files and include paths are configured in `.vscode/tasks.json`.
 
-## SELECT Processing Flow
-
-The current SELECT path creates these main instances:
-
-- `TripleChars *t`: triples loaded from `full.ttl` as strings.
-- `Triplestore *ts`: in-memory storage of numeric RDF IDs.
-- `Tokens *tokens`: tokenized query text.
-- `ParsedQuery *parsedQuery`: parsed query type, variables, and triple pattern.
-- `Results *results`: triples matching the parsed pattern.
-
-```mermaid
-flowchart TD
-	A[main] --> B[fetch_TripleChars full.ttl]
-	B --> C[TripleChars *t]
-	C --> D[create]
-	D --> E[Triplestore *ts]
-	C --> F[insert ts, t[i].s, t[i].p, t[i].o]
-	F --> G[Dictionary and HashTable assign numeric IDs]
-	G --> E
-	E --> H[execute ts, query]
-	H --> I[getTokens query]
-	I --> J[Tokens *tokens]
-	J --> K[parseQuery tokens]
-	K --> L[ParsedQuery *parsedQuery]
-	L --> M[getTriplePattern tokens]
-	L --> N[getVariablesAndPositions tokens, triple]
-	N --> O[Variables variables]
-	L --> P[getType tokens]
-	L --> Q[getTriples ts, triple pattern, variable flags]
-	Q --> R[Results *results]
-	R --> S[addToTriples for each matching Triple]
-	S --> T[main prints dictionary_get_string values]
-	T --> U[free_results results]
-	U --> V[triplestore_free ts]
-	V --> W[fetch_free t, n]
-```
 
 ## Methods Used
 
